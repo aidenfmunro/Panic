@@ -1,6 +1,9 @@
 #include "Core/IP.hpp"
+#include <sstream>
 
 namespace panic {
+
+constexpr int OCTEN_COUNT = 4;
 
 u_int8_t IPv4::operator[] (int num) const {
     if (num >= OCTEN_COUNT) {
@@ -11,20 +14,19 @@ u_int8_t IPv4::operator[] (int num) const {
 }
 
 std::ostream& operator<< (std::ostream& os, const IPv4 &IP) {
-    return os << to_string(IP);
+    for (int i = 0; i < OCTEN_COUNT - 1; i++) {
+        os << static_cast<int>(IP[i]) << '.';
+    }
+    os << static_cast<int>(IP[OCTEN_COUNT - 1]);
+
+    return os;
 }
 
 std::string to_string(const IPv4 &IP) {
-    std::string out;
-
-    for (int i = 0; i < OCTEN_COUNT - 1; i++) {
-        out.append(std::to_string(IP[i]));
-        out.append(1, '.');
-    }
-
-    out.append(std::to_string(IP[OCTEN_COUNT - 1]));
-
-    return out;
+    std::stringstream ostream_out;
+    ostream_out << IP;
+    
+    return ostream_out.str();
 }
 
 } // namespace panic

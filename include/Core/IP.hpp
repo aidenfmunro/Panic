@@ -5,8 +5,6 @@
 
 namespace panic {
 
-constexpr int OCTEN_COUNT = 4;
-
 class IPv4
 {
 private:
