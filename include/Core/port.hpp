@@ -21,13 +21,13 @@ public:
     bool operator== (const port &other) const {
         return port_ == other.port_;
     }
-    bool operator== (const long &other) const {
+    bool operator== (long other) const {
         return port_ == other;
     }
     auto operator<=> (const port &other) const {
         return port_ - other.port_;
     }
-    auto operator<=> (const long &other) const {
+    auto operator<=> (long other) const {
         return port_ - other;
     }
 };

@@ -28,3 +28,14 @@ TEST(HostTest, PortEraseTest) {
     EXPECT_EQ(host.erase_port(1), 1);
     EXPECT_EQ(host.find_port(1), host.ports_end());
 }
+
+// TODO make port value const and don't changable
+TEST(HostTest, PortChangeTest) {
+    panic::Host host{};
+
+    host.add_port(1);
+    panic::port &port = host.find_port(1)->second;
+    port.set_value(2);
+
+    EXPECT_EQ(host.find_port(1)->second, 2);
+}   
