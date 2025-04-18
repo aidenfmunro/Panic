@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include "Core/MAC.hpp"
 
-#define TEST_MAC 0xaabbccddeeff
-#define TEST_MAC_STRING "aa:bb:cc:dd:ee:ff"
+constexpr u_int64_t TEST_MAC = 0xaabbccddeeff;
+constexpr const char* TEST_MAC_STRING = "aa:bb:cc:dd:ee:ff";
 
 TEST(MACTest, ToStringTest) {
     panic::MAC_48 MAC{TEST_MAC};

@@ -7,5 +7,9 @@ int main() {
 
     std::cout << "IP: " << hhh << std::endl;
 
+    panic::IPv4 IP{"12.2.1.1.3.2"};
+
+    std::cout << IP << std::endl;
+
     return 0;
 }

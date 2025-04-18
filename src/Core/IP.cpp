@@ -7,11 +7,11 @@ namespace panic {
 constexpr int OCTEN_COUNT = 4;
 constexpr char IPv4_SEPARATOR = '.';
 
-IPv4::IPv4(std::string IPAdress) {
+IPv4::IPv4(std::string IPAdress) : intRepresentation_(0) {
     std::istringstream iss(IPAdress);
     std::string token;
     u_int8_t *octens = reinterpret_cast<u_int8_t*>(&intRepresentation_);
-    for(size_t token_index = 0; token_index < OCTEN_COUNT; std::getline(iss, token, IPv4_SEPARATOR)) {
+    for(size_t token_index = 0; token_index < OCTEN_COUNT, std::getline(iss, token, IPv4_SEPARATOR);) {
         if (!token.empty()) {
             octens[OCTEN_COUNT - 1 - token_index] = static_cast<u_int8_t>(std::stoi(token));
             token_index++;

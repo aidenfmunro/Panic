@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include <Core/IP.hpp>
 
-#define TEST_IP 2864434397  // 0xaabbccdd
-#define TEST_IP_STRING "170.187.204.221"
+constexpr u_int32_t TEST_IP = 2864434397;  // 0xaabbccdd
+constexpr const char* TEST_IP_STRING ="170.187.204.221";
 
 TEST(IPTest, GetValueTest) {
     panic::IPv4 IP{TEST_IP};
