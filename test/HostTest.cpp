@@ -39,3 +39,54 @@ TEST(HostTest, PortChangeTest) {
 
     EXPECT_EQ(host.find_port(1)->second, 2);
 }   
+
+TEST(HostTest, ResponseTimeTest) {
+    panic::Host host{};
+
+    host.push_back_response_time(12);
+
+    EXPECT_EQ(host.get_last_response_time(), 12);
+}
+
+TEST(HostTest, ResponseTimeRangeTest) {
+    panic::Host host{};
+
+    time_t time_array[] = {1, 2, 3, 4, 5};
+
+    for (time_t time : time_array) {
+        host.push_back_response_time(time);
+    }
+
+    auto time_begin = host.response_time_begin();
+    for (struct {decltype(time_begin) time; int index;} s = {time_begin, 0}; 
+         s.time != host.response_time_end(); s.time++, s.index++) {
+        EXPECT_EQ(*s.time, time_array[s.index]);
+    }
+}
+
+TEST (HostTest, AppendResponseTimeVectorTest) {
+    panic::Host host{};
+
+    std::vector<time_t> time_vector{1, 2, 3, 4, 5};
+
+    host.append_response_time_vector(time_vector);
+
+    auto inside_time_begin = host.response_time_begin();
+    auto outside_time_begin = time_vector.begin();
+    for (struct {decltype(inside_time_begin) inside; decltype(outside_time_begin) outside;} 
+         s = {inside_time_begin, outside_time_begin}; s.inside != host.response_time_end();
+         s.inside++, s.outside++) {
+        EXPECT_EQ(*s.inside, *s.outside);
+    }
+}
+
+TEST(HostTest, ChangeResponseTimeTest) {
+    panic::Host host{};
+
+    host.push_back_response_time(1);
+    
+    auto &time = host.get_last_response_time();
+    time = 2;
+
+    EXPECT_EQ(host.get_last_response_time(), 2);
+}
