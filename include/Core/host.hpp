@@ -37,7 +37,7 @@ public:
 
     auto find_port(long port_value) {return ports_.find(port_value);}
     auto find_port(const port& port) {return ports_.find(port.get_value());}
-
+    // TODO write iterator adapter to port map
     // Port iterators
     auto ports_begin() {return ports_.begin();}
     auto ports_end() {return ports_.end();}

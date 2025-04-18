@@ -11,7 +11,8 @@ private:
     u_int32_t intRepresentation_;   // 32-bit unsigned int
 public:
     // Construct IPv4 class from u_int32_t
-    explicit IPv4(u_int32_t IPAddress) : intRepresentation_(IPAddress) {}
+    IPv4(u_int32_t IPAddress) : intRepresentation_(IPAddress) {}
+    IPv4(std::string IPAddress);
 
     // Get value of IPv4 in u_int32_t representation
     u_int32_t get_value() const {return intRepresentation_;}

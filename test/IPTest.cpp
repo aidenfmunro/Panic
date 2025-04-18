@@ -2,6 +2,7 @@
 #include <Core/IP.hpp>
 
 #define TEST_IP 2864434397  // 0xaabbccdd
+#define TEST_IP_STRING "170.187.204.221"
 
 TEST(IPTest, GetValueTest) {
     panic::IPv4 IP{TEST_IP};
@@ -27,5 +28,11 @@ TEST(IPTest, SquareBracketsTestException) {
 TEST(IPTest, ToStringTest) {
     panic::IPv4 IP{TEST_IP};
 
-    EXPECT_EQ(panic::to_string(IP), "170.187.204.221");
+    EXPECT_EQ(panic::to_string(IP), TEST_IP_STRING);
+}
+
+TEST(IPTest, StringConstructorTest) {
+    panic::IPv4 IP{TEST_IP_STRING};
+
+    EXPECT_EQ(panic::to_string(IP), TEST_IP_STRING);
 }
