@@ -1,13 +1,17 @@
 #include "Core/MAC.hpp"
 #include <sstream>
 
-namespace panic {
-constexpr int OCTEN_COUNT = 6;
+namespace {
 
+constexpr int OCTEN_COUNT = 6;
 constexpr char MAC_48_SEPARATOR = ':';
 
-MAC_48::MAC_48(std::string IPAdress) : intRepresentation_(0) {
-    std::istringstream iss(IPAdress);
+}
+
+namespace panic {
+
+MAC_48::MAC_48(const std::string &MACAddress) : intRepresentation_(0) {
+    std::istringstream iss(MACAddress);
     std::string token;
     u_int8_t *octens = reinterpret_cast<u_int8_t*>(&intRepresentation_);
     for(size_t token_index = 0; token_index < OCTEN_COUNT, std::getline(iss, token, MAC_48_SEPARATOR);) {

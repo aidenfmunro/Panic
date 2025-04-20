@@ -10,7 +10,7 @@ private:
 public:
     // Construct MAC_48 class from u_int64_t
     MAC_48(u_int64_t MACAddress) : intRepresentation_(MACAddress) {}
-    MAC_48(std::string MACAddress);
+    MAC_48(const std::string &MACAddress);
 
     // Get value of MAC_48 in u_int64_t representation
     u_int32_t get_value() const {return intRepresentation_;}

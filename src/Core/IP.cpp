@@ -2,12 +2,16 @@
 #include <sstream>
 #include <iostream>
 
-namespace panic {
+namespace {
 
 constexpr int OCTEN_COUNT = 4;
 constexpr char IPv4_SEPARATOR = '.';
 
-IPv4::IPv4(std::string IPAdress) : intRepresentation_(0) {
+}
+
+namespace panic {
+
+IPv4::IPv4(const std::string &IPAdress) : intRepresentation_(0) {
     std::istringstream iss(IPAdress);
     std::string token;
     u_int8_t *octens = reinterpret_cast<u_int8_t*>(&intRepresentation_);
