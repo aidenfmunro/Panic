@@ -33,9 +33,9 @@ u_int8_t IPv4::operator[] (int num) const {
 
 std::ostream& operator<< (std::ostream& os, const IPv4 &IP) {
     for (int i = 0; i < OCTEN_COUNT - 1; i++) {
-        os << static_cast<int>(IP[i]) << '.';
+        os << +IP[i] << '.';
     }
-    os << static_cast<int>(IP[OCTEN_COUNT - 1]);
+    os << +IP[OCTEN_COUNT - 1];
 
     return os;
 }

@@ -32,9 +32,9 @@ u_int8_t MAC_48::operator[] (int num) const {
 
 std::ostream& operator<< (std::ostream& os, const MAC_48 &IP) {
     for (int i = 0; i < OCTEN_COUNT - 1; i++) {
-        os << std::hex << static_cast<int>(IP[i]) << ':';
+        os << std::hex << +IP[i] << ':';
     }
-    os << std::hex << static_cast<int>(IP[OCTEN_COUNT - 1]);
+    os << std::hex << +IP[OCTEN_COUNT - 1];
 
     return os;
 }
