@@ -1,15 +1,13 @@
-#include <iostream>
-#include "Core/IP.hpp"
+#include <QApplication>
+#include "MainWindow.h"
 
-int main() {
-    panic::IPv4 hhh(917371938);
-    std::cout << "Hi\n" << std::endl;
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
 
-    std::cout << "IP: " << hhh << std::endl;
+    MainWindow window;
+    window.setWindowTitle("PANIC — Network Monitor");
+    window.resize(800, 600);
+    window.show();
 
-    panic::IPv4 IP{"12.2.1.1.3.2"};
-
-    std::cout << IP << std::endl;
-
-    return 0;
+    return app.exec();
 }

@@ -1,27 +1,30 @@
-cmake_minimum_required(VERSION 3.10)
-project(PANIC)
+cmake_minimum_required(VERSION 3.16)
+project(panic LANGUAGES CXX)
 
-set(TARGET PANIC)
-set(TEST_TARGET PANIC_Tests)
+set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+find_package(Qt6 COMPONENTS Core Gui Widgets Charts Concurrent REQUIRED)
 
-add_executable(${TARGET})
+qt_standard_project_setup()
 
-enable_testing()
+qt_add_executable(panic
+    src/main.cpp
+    src/Ping.cpp
+    src/HostListModel.cpp include/HostListModel.h
+    src/PingGraphWindow.cpp
+    src/PingWorker.cpp include/PingWorker.h
+    src/MonitorController.cpp include/MonitorController.h
+    src/MainWindow.cpp include/MainWindow.h
+)
 
-find_package(GTest REQUIRED)
-add_executable(${TEST_TARGET})
-target_link_libraries(${TEST_TARGET} PUBLIC GTest::GTest GTest::Main)
+target_include_directories(panic PRIVATE include)
 
-target_include_directories(${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(${TEST_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(panic PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Charts
+    Qt6::Concurrent
+)
 
-# Важно добавлять add_subdirectory в конец CMakeLists.txt
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
-
-set_target_properties(${TARGET}
-                      PROPERTIES 
-                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+target_compile_options(panic PRIVATE -Wall -Wextra -pedantic)
