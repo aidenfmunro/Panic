@@ -22,7 +22,7 @@ private:
 };
 
 MonitorController::MonitorController(QObject* parent) : QObject(parent) {
-    pool_.setMaxThreadCount(4);
+    pool_.setMaxThreadCount(4); // TODO: config 
 }
 
 void MonitorController::startMonitoring(const QString& host) {

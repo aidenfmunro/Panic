@@ -15,6 +15,7 @@ QVariant HostListModel::data(const QModelIndex &index, int role) const {
     const auto& hostStatus = hosts_[index.row()];
 
     switch (role) {
+        case Qt::DisplayRole:
         case HostNameRole:
             return QString::fromStdString(hostStatus.hostInfo.getHostName());
         case StatusRole:

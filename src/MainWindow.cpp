@@ -45,7 +45,7 @@ void MainWindow::onAddHost() {
         return;
     }
 
-    HostIpInfo info(host.toStdString(), {});
+    HostIpInfo info(host.toStdString(), {.ai_family = AF_UNSPEC, .ai_socktype = SOCK_STREAM});
     hostModel->addHost(info);
     monitor->startMonitoring(host);
 }

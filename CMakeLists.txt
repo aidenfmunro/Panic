@@ -27,4 +27,10 @@ target_link_libraries(panic PRIVATE
     Qt6::Concurrent
 )
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    message(STATUS "AddressSanitizer enabled")
+    target_compile_options(panic PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_libraries(panic PRIVATE -fsanitize=address)
+endif()
+
 target_compile_options(panic PRIVATE -Wall -Wextra -pedantic)

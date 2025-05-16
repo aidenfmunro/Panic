@@ -49,12 +49,12 @@ int OpenSocket(int inetType, int socketType, int protocol) {
 HostIpInfo::HostIpInfo(std::string_view hostName, const addrinfo& settings)
     : hostName_(hostName) {
     if (const auto status = getaddrinfo(hostName.data(), nullptr, &settings, &ipList_); status != 0) {
-        throw std::runtime_error(std::format("{}", gai_strerror(status)));
+        // throw std::runtime_error(std::format("{}", gai_strerror(status)));
     }
 }
 
 HostIpInfo::~HostIpInfo() {
-    freeaddrinfo(ipList_);
+    // freeaddrinfo(ipList_);
 }
 
 const std::string& HostIpInfo::getHostName() const {
