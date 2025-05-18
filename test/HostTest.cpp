@@ -7,6 +7,16 @@ TEST(HostTest, GetNameTest) {
     EXPECT_EQ(host.get_name(), "noname");
 }
 
+TEST(HostTest, GetLocalHostName) {
+    panic::Host host{};
+
+    host.set_IPv4(panic::IPv4{"127.0.0.1"});
+
+    host.set_name(panic::getHostnameByIP(panic::IPv4{"127.0.0.1"}));
+
+    EXPECT_EQ(host.get_name(), "localhost");
+}
+
 TEST(HostTest, AddPortTest) {
     panic::Host host{};
 

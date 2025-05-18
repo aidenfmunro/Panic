@@ -7,15 +7,10 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Charts Concurrent REQUIRED)
 
 qt_standard_project_setup()
 
-qt_add_executable(panic
-    src/main.cpp
-    src/Ping.cpp
-    src/HostListModel.cpp include/HostListModel.h
-    src/PingGraphWindow.cpp
-    src/PingWorker.cpp include/PingWorker.h
-    src/MonitorController.cpp include/MonitorController.h
-    src/MainWindow.cpp include/MainWindow.h
-)
+# target_compile_options(${TARGET} PRIVATE -fsanitize=address -g)
+target_link_options(${TARGET} PRIVATE -lpthread)
+
+enable_testing()
 
 target_include_directories(panic PRIVATE include)
 
