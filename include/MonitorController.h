@@ -1,26 +1,29 @@
 #pragma once
-
 #include <QObject>
-#include <QThreadPool>
+#include <QTimer>
+#include <QString>
+#include <QMap>
+#include <QVector>
+#include <QStringList>
 #include "PingWorker.h"
-#include "HostListModel.h"
 
 class MonitorController : public QObject {
     Q_OBJECT
 
 public:
-    explicit MonitorController(QObject* parent = nullptr);
-
-    void startMonitoring(const QString& host);
+    explicit MonitorController(QObject *parent = nullptr);
+    void addHost(const QString &host);
+    void removeHost(const QString &host);
+    QVector<int> getRttHistory(const QString &host) const;
 
 signals:
-    void pingSuccess(QString host, QString ip, double rtt_ms);
-    void pingFailure(QString host, QString error);
+    void hostChecked(const QString &host, bool alive, int rtt);
 
-public slots:
-    void onPingSuccess(QString host, QString ip, double rtt);
-    void onPingFailure(QString host, QString error);
+private slots:
+    void checkHosts();
 
 private:
-    QThreadPool pool_;
+    QTimer timer;
+    QStringList hosts;
+    QMap<QString, QVector<int>> rttHistory;
 };

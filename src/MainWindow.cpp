@@ -1,83 +1,117 @@
 #include "MainWindow.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QListView>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QMessageBox>
+#include <QInputDialog>
+#include <QDebug>
 
-MainWindow::MainWindow(QWidget* parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      hostModel(new HostListModel(this)),
-      monitor(new MonitorController(this)) {
+      table(new QTableWidget),
+      controller(new MonitorController(this))
+{
+    auto *central = new QWidget;
+    auto *layout = new QVBoxLayout(central);
 
-    QWidget* central = new QWidget(this);
-    QVBoxLayout* mainLayout = new QVBoxLayout(central);
-    QHBoxLayout* inputLayout = new QHBoxLayout();
+    table->setColumnCount(3);
+    table->setHorizontalHeaderLabels({"Host", "Status", "RTT (ms)"});
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    listView = new QListView(this);
-    listView->setModel(hostModel);
+    addHostButton = new QPushButton("Add Host");
+    removeHostButton = new QPushButton("Remove Host");
 
-    inputHost = new QLineEdit(this);
-    addButton = new QPushButton("Add Host", this);
-    removeButton = new QPushButton("Remove Selected", this);
-
-    inputLayout->addWidget(inputHost);
-    inputLayout->addWidget(addButton);
-    inputLayout->addWidget(removeButton);
-
-    mainLayout->addWidget(listView);
-    mainLayout->addLayout(inputLayout);
+    layout->addWidget(table);
+    layout->addWidget(addHostButton);
+    layout->addWidget(removeHostButton);
     setCentralWidget(central);
 
-    connect(addButton, &QPushButton::clicked, this, &MainWindow::onAddHost);
-    connect(removeButton, &QPushButton::clicked, this, &MainWindow::onRemoveSelectedHost);
-    connect(monitor, &MonitorController::pingSuccess, this, &MainWindow::onPingSuccess);
-    connect(monitor, &MonitorController::pingFailure, this, &MainWindow::onPingFailure);
+    connect(addHostButton, &QPushButton::clicked, this, &MainWindow::onAddHost);
+    connect(removeHostButton, &QPushButton::clicked, this, &MainWindow::onRemoveHost);
+    connect(controller, &MonitorController::hostChecked, this, &MainWindow::onHostChecked);
+    connect(table, &QTableWidget::cellClicked, this, &MainWindow::onTableCellClicked);
+}
+
+MainWindow::~MainWindow() {
+    // Очистим все открытые окна графиков
+    qDeleteAll(openCharts);
+    openCharts.clear();
 }
 
 void MainWindow::onAddHost() {
-    QString host = inputHost->text().trimmed();
-    if (host.isEmpty()) return;
+    bool ok;
+    QString host = QInputDialog::getText(this, "Add Host", "Hostname:", QLineEdit::Normal, "", &ok);
+    if (ok && !host.isEmpty()) {
+        controller->addHost(host);
+    }
+}
 
-    if (hostModel->containsHost(host)) {
-        QMessageBox::information(this, "Already added", "This host is already being monitored.");
+void MainWindow::onRemoveHost() {
+    int row = table->currentRow();
+    if (row < 0)
+        return;
+
+    QString host = table->item(row, 0)->text();
+
+    controller->removeHost(host);
+
+    table->removeRow(row);
+
+    if (openCharts.contains(host)) 
+    {
+        openCharts[host]->close();
+        delete openCharts[host];
+        openCharts.remove(host);
+    }
+}
+
+
+void MainWindow::updateResult(const QString &host, bool alive, int rtt) {
+    // Поиск строки с хостом
+    for (int i = 0; i < table->rowCount(); ++i) {
+        if (table->item(i, 0)->text() == host) {
+            table->item(i, 1)->setText(alive ? "🟢" : "🔴");
+            table->item(i, 2)->setText(alive ? QString::number(rtt) : "");
+            return;
+        }
+    }
+    // Если не найдено, добавить новую строку
+    int row = table->rowCount();
+    table->insertRow(row);
+    table->setItem(row, 0, new QTableWidgetItem(host));
+    table->setItem(row, 1, new QTableWidgetItem(alive ? "🟢" : "🔴"));
+    table->setItem(row, 2, new QTableWidgetItem(alive ? QString::number(rtt) : ""));
+}
+
+void MainWindow::onTableCellClicked(int row, int /*column*/) {
+    QString host = table->item(row, 0)->text();
+    const auto &history = controller->getRttHistory(host);
+    if (history.isEmpty()) {
+        return; // Нет данных - не показываем
+    }
+
+    // Если окно с графиком уже открыто, просто покажем его
+    if (openCharts.contains(host)) {
+        openCharts[host]->show();
+        openCharts[host]->raise();
+        openCharts[host]->activateWindow();
         return;
     }
 
-    HostIpInfo info(host.toStdString(), {.ai_family = AF_UNSPEC, .ai_socktype = SOCK_STREAM});
-    hostModel->addHost(info);
-    monitor->startMonitoring(host);
+    // Создаем и показываем новое окно графика
+    auto *chart = new ChartWindow(host, history);
+    openCharts.insert(host, chart);
+
+    // Когда окно закроется, удаляем его из map
+    connect(chart, &QWidget::destroyed, this, [this, host]() {
+        openCharts.remove(host);
+    });
+
+    chart->show();
 }
 
-void MainWindow::onRemoveSelectedHost() {
-    QModelIndex idx = listView->currentIndex();
-    if (!idx.isValid()) return;
+void MainWindow::onHostChecked(const QString &host, bool alive, int rtt) {
+    updateResult(host, alive, rtt);
 
-    hostModel->removeHost(idx.row());
-}
-
-void MainWindow::onPingSuccess(QString host, QString ip, double rtt) {
-    int row = findHostIndexByName(host);
-    if (row < 0) return;
-
-    IpInfo ipInfo;
-    ipInfo.printable_addr = ip.toStdString();
-    hostModel->updateHostStatus(row, true, static_cast<int>(rtt), ipInfo);
-}
-
-void MainWindow::onPingFailure(QString host, QString error) {
-    int row = findHostIndexByName(host);
-    if (row < 0) return;
-
-    hostModel->updateHostStatus(row, false, -1, {});
-}
-
-int MainWindow::findHostIndexByName(const QString& name) const {
-    for (int i = 0; i < hostModel->rowCount(); ++i) {
-        if (hostModel->data(hostModel->index(i), HostListModel::HostNameRole).toString() == name) {
-            return i;
-        }
+    if (alive && openCharts.contains(host)) {
+        openCharts[host]->appendRtt(rtt);
     }
-    return -1;
 }

@@ -1,39 +1,27 @@
 #include "PingWorker.h"
-#include "Ping.h"
-#include <QMetaType>
+#include <QRegularExpression>
+#include <QProcess>
 
-PingWorker::PingWorker(QObject* parent)
-    : QObject(parent) {}
+bool PingWorker::ping(const QString &host, int &rtt) {
+    QProcess ping;
+#ifdef _WIN32
+    QString program = "ping";
+    QStringList arguments = {"-n", "1", host};
+#else
+    QString program = "ping";
+    QStringList arguments = {"-c", "1", "-W", "1", host};
+#endif
+    ping.start(program, arguments);
+    bool finished = ping.waitForFinished(2000);
+    if (!finished || ping.exitCode() != 0)
+        return false;
 
-void PingWorker::pingHost(const QString& host) {
-    try {
-        addrinfo hints{};
-        hints.ai_family = AF_UNSPEC; // Both IPv4 and IPv6
-        hints.ai_socktype = SOCK_RAW;
-
-        HostIpInfo resolver(host.toStdString(), hints);
-        auto ipList = resolver.getIpList();
-        Ping ping;
-
-        for (const auto& ip : ipList) {
-            try {
-                std::chrono::duration<double, std::milli> rtt;
-
-                if (ip.type == IP::v4) {
-                    const sockaddr_in& addr = std::get<sockaddr_in>(ip.sockaddr);
-                    rtt = ping(addr);
-                } else {
-                    const sockaddr_in6& addr6 = std::get<sockaddr_in6>(ip.sockaddr);
-                    rtt = ping(addr6);
-                }
-
-                emit pingSuccess(host, QString::fromStdString(ip.printable_addr), rtt.count());
-            } catch (const std::exception& e) {
-                emit pingFailure(host, QString::fromStdString(ip.printable_addr) + " → " + e.what());
-            }
-        }
-    } catch (const std::exception& e) {
-        emit pingFailure(host, e.what());
+    QString output = ping.readAllStandardOutput();
+    QRegularExpression re("time=([0-9.]+) ?ms");
+    auto match = re.match(output);
+    if (match.hasMatch()) {
+        rtt = match.captured(1).toDouble();
+        return true;
     }
+    return false;
 }
-

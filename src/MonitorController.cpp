@@ -1,40 +1,36 @@
 #include "MonitorController.h"
-#include <QRunnable>
+#include <QtConcurrent/QtConcurrent>
 
-class PingTask : public QRunnable {
-public:
-    PingTask(const QString& host, MonitorController* controller)
-        : host_(host), controller_(controller) {}
+MonitorController::MonitorController(QObject *parent) : QObject(parent) {
+    connect(&timer, &QTimer::timeout, this, &MonitorController::checkHosts);
+    timer.start(3000);
+}
 
-    void run() override {
-        PingWorker worker;
-        QObject::connect(&worker, &PingWorker::pingSuccess,
-                         controller_, &MonitorController::onPingSuccess);
-        QObject::connect(&worker, &PingWorker::pingFailure,
-                         controller_, &MonitorController::onPingFailure);
+void MonitorController::addHost(const QString &host) {
+    if (!hosts.contains(host))
+        hosts.append(host);
+}
 
-        worker.pingHost(host_);
+void MonitorController::removeHost(const QString &host) {
+    hosts.removeAll(host);            // ✅ Remove host from list
+    rttHistory.remove(host);          // ✅ Clear stored RTT history
+}
+
+void MonitorController::checkHosts() {
+    for (const auto &host : hosts) {
+        QThreadPool::globalInstance()->start([this, host]() {
+            int rtt;
+            bool ok = PingWorker::ping(host, rtt);
+            QMetaObject::invokeMethod(this, [this, host, ok, rtt] {
+                if (ok) {
+                    rttHistory[host].append(rtt);
+                }
+                emit hostChecked(host, ok, rtt);
+            }, Qt::QueuedConnection);
+        });
     }
-
-private:
-    QString host_;
-    MonitorController* controller_;
-};
-
-MonitorController::MonitorController(QObject* parent) : QObject(parent) {
-    pool_.setMaxThreadCount(4); // TODO: config 
 }
 
-void MonitorController::startMonitoring(const QString& host) {
-    auto* task = new PingTask(host, this);
-    task->setAutoDelete(true);
-    pool_.start(task);
-}
-
-void MonitorController::onPingSuccess(QString host, QString ip, double rtt) {
-    emit pingSuccess(host, ip, rtt);
-}
-
-void MonitorController::onPingFailure(QString host, QString error) {
-    emit pingFailure(host, error);
+QVector<int> MonitorController::getRttHistory(const QString &host) const {
+    return rttHistory.value(host);
 }

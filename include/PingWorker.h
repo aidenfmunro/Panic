@@ -1,21 +1,7 @@
 #pragma once
-
-#include <QObject>
 #include <QString>
-#include <chrono>
-#include "Ping.h"
 
-class PingWorker : public QObject {
-    Q_OBJECT
-
+class PingWorker {
 public:
-    explicit PingWorker(QObject* parent = nullptr);
-    virtual ~PingWorker() = default;
-
-public slots:
-    void pingHost(const QString& host);
-
-signals:
-    void pingSuccess(QString host, QString ip, double rtt_ms);
-    void pingFailure(QString host, QString error);
+    static bool ping(const QString &host, int &rtt); // true if host responds, rtt in ms
 };

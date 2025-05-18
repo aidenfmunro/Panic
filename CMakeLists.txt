@@ -3,18 +3,16 @@ project(panic LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Charts Concurrent REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Charts)
 
 qt_standard_project_setup()
 
 qt_add_executable(panic
     src/main.cpp
-    src/Ping.cpp
-    src/HostListModel.cpp include/HostListModel.h
-    src/PingGraphWindow.cpp
-    src/PingWorker.cpp include/PingWorker.h
-    src/MonitorController.cpp include/MonitorController.h
     src/MainWindow.cpp include/MainWindow.h
+    src/MonitorController.cpp include/MonitorController.h
+    src/PingWorker.cpp include/PingWorker.h
+    src/ChartWindow.cpp include/ChartWindow.h
 )
 
 target_include_directories(panic PRIVATE include)
@@ -23,14 +21,6 @@ target_link_libraries(panic PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    Qt6::Charts
     Qt6::Concurrent
+    Qt6::Charts
 )
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "AddressSanitizer enabled")
-    target_compile_options(panic PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    target_link_libraries(panic PRIVATE -fsanitize=address)
-endif()
-
-target_compile_options(panic PRIVATE -Wall -Wextra -pedantic)
