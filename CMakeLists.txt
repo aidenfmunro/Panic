@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(${TARGET})
 
+# target_compile_options(${TARGET} PRIVATE -fsanitize=address -g)
+target_link_options(${TARGET} PRIVATE -lpthread)
+
 enable_testing()
 
 find_package(GTest REQUIRED)
