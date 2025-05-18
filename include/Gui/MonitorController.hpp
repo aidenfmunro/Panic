@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PingWorker.hpp"
+#include "Core/host.hpp"
 
 #include <QObject>
 #include <QTimer>
@@ -14,9 +15,10 @@ class MonitorController : public QObject {
 
 public:
     explicit MonitorController(QObject *parent = nullptr);
-    void addHost(const QString &host);
-    void removeHost(const QString &host);
-    QVector<int> getRttHistory(const QString &host) const;
+    void addHost(const QString &hostName);
+    void removeHost(const QString &hostName);
+    panic::Host* getHost(const QString &hostName) const;
+    QVector<int> getRttHistory(const QString &hostName) const;
 
 signals:
     void hostChecked(const QString &host, bool alive, int rtt);
@@ -26,6 +28,5 @@ private slots:
 
 private:
     QTimer timer;
-    QStringList hosts;
-    QMap<QString, QVector<int>> rttHistory;
+    QMap<QString, panic::Host> hosts;
 };

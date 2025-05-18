@@ -1,4 +1,4 @@
-Fix exceptions caused by Ping.cpp
- - Rule of five problem
- - Double free
- - Network address not being accessed
+- add ms and s to graph (axis)
+- add general info + scan ports with percentage
+
+
