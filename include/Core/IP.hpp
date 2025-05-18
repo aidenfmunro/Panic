@@ -18,7 +18,7 @@ public:
     u_int32_t get_value() const {return intRepresentation_;}
 
     // Access to IPv4 octens by the following scheme:
-    // 192.168.000.001 
+    // 192.168.000.001
     // [0].[1].[2].[3]
     u_int8_t operator[] (int num) const;
 

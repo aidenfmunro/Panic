@@ -1,5 +1,5 @@
 // This file describe port class
-#pragma once 
+#pragma once
 #include <compare>
 
 namespace panic {
