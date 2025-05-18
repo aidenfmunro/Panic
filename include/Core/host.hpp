@@ -9,6 +9,8 @@
 
 namespace panic {
 
+constexpr int MAX_HOSTNAME_LEN = 256;
+
 enum HostStatus {
   OFFLINE,
   ONLINE
@@ -69,5 +71,10 @@ public:
     void set_MAC(const MAC_48 &MAC) {hostMAC_ = MAC;}
     void set_status(HostStatus status) {status_ = status;}
 };
+
+/// @brief Get Host name by IP address 
+/// @param ipAddress 
+/// @return string with host name
+std::string getHostnameByIP(const IPv4& ipAddress);
 
 } // namespace panic
