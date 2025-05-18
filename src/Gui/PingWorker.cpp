@@ -1,6 +1,6 @@
-#include "PingWorker.h"
-#include "Ping.h"
-#include <QMetaType>
+#include "Gui/PingWorker.h"
+#include <QRegularExpression>
+#include <QProcess>
 
 PingWorker::PingWorker(QObject* parent)
     : QObject(parent) {}

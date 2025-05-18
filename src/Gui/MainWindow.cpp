@@ -1,10 +1,6 @@
-#include "MainWindow.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QListView>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QMessageBox>
+#include "Gui/MainWindow.h"
+#include <QInputDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
@@ -43,6 +39,18 @@ void MainWindow::onAddHost() {
     if (hostModel->containsHost(host)) {
         QMessageBox::information(this, "Already added", "This host is already being monitored.");
         return;
+
+    QString host = table->item(row, 0)->text();
+
+    controller->removeHost(host);
+
+    table->removeRow(row);
+
+    if (openCharts.contains(host))
+    {
+        openCharts[host]->close();
+        delete openCharts[host];
+        openCharts.remove(host);
     }
 
     HostIpInfo info(host.toStdString(), {.ai_family = AF_UNSPEC, .ai_socktype = SOCK_STREAM});

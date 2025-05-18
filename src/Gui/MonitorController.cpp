@@ -1,5 +1,5 @@
-#include "MonitorController.h"
-#include <QRunnable>
+#include "Gui/MonitorController.h"
+#include <QtConcurrent/QtConcurrent>
 
 class PingTask : public QRunnable {
 public:

@@ -9,8 +9,6 @@
 
 namespace panic {
 
-constexpr int MAX_HOSTNAME_LEN = 256;
-
 enum HostStatus {
   OFFLINE,
   ONLINE
