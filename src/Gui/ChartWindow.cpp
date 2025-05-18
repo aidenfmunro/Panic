@@ -1,4 +1,4 @@
-#include "Gui/ChartWindow.h"
+#include "Gui/ChartWindow.hpp"
 
 #include <QtCharts/QtCharts>
 #include <QLineSeries>

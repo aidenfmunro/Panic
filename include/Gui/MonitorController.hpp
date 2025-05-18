@@ -1,9 +1,13 @@
 #pragma once
 
+#include "PingWorker.hpp"
+
 #include <QObject>
-#include <QThreadPool>
-#include "PingWorker.h"
-#include "HostListModel.h"
+#include <QTimer>
+#include <QString>
+#include <QMap>
+#include <QVector>
+#include <QStringList>
 
 class MonitorController : public QObject {
     Q_OBJECT
