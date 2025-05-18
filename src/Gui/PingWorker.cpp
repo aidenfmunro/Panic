@@ -1,4 +1,4 @@
-#include "PingWorker.h"
+#include "Gui/PingWorker.h"
 #include <QRegularExpression>
 #include <QProcess>
 

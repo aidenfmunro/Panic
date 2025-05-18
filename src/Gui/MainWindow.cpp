@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "Gui/MainWindow.h"
 #include <QInputDialog>
 #include <QDebug>
 
@@ -55,7 +55,7 @@ void MainWindow::onRemoveHost() {
 
     table->removeRow(row);
 
-    if (openCharts.contains(host)) 
+    if (openCharts.contains(host))
     {
         openCharts[host]->close();
         delete openCharts[host];
