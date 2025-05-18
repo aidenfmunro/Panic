@@ -8,6 +8,13 @@ int HostListModel::rowCount(const QModelIndex &parent) const {
     return static_cast<int>(hosts_.size());
 }
 
+int HostListModel::columnCount(const QModelIndex &parent) const {
+    if (parent.isValid())
+        return 0;
+    return 4;
+}
+
+
 QVariant HostListModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || index.row() < 0 || index.row() >= (int)hosts_.size())
         return QVariant();
@@ -16,19 +23,15 @@ QVariant HostListModel::data(const QModelIndex &index, int role) const {
 
     switch (role) {
         case Qt::DisplayRole:
-        case HostNameRole:
-            return QString::fromStdString(hostStatus.hostInfo.getHostName());
-        case StatusRole:
-            return hostStatus.reachable;
-        case PingRole:
-            return hostStatus.pingMs;
-        case LastIpRole:
-            if (hostStatus.lastReachableIp)
-                return QString::fromStdString(hostStatus.lastReachableIp->printable_addr);
-            return QString();
-        default:
-            return QVariant();
+        return QString("%1 - %2 - %3 ms - %4")
+            .arg(QString::fromStdString(hostStatus.hostInfo.getHostName()))
+            .arg(hostStatus.reachable ? "Online" : "Offline")
+            .arg(hostStatus.pingMs >= 0 ? QString::number(hostStatus.pingMs) : QString("N/A"))
+            .arg(hostStatus.lastReachableIp ? QString::fromStdString(hostStatus.lastReachableIp->printable_addr) : QString("N/A"));
     }
+
+
+    return QVariant();
 }
 
 QHash<int, QByteArray> HostListModel::roleNames() const {

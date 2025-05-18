@@ -38,6 +38,8 @@ public:
     bool containsHost(const QString& hostName) const;
     void addHost(const HostIpInfo& hostInfo);
     void removeHost(int row);
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
     HostIpInfo hostAt(int row) const;
 
     void updateHostStatus(int row, bool reachable, int pingMs, const IpInfo& ip);
