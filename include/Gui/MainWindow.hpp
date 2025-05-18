@@ -1,11 +1,13 @@
 #pragma once
+
+#include "MonitorController.hpp"
+#include "ChartWindow.hpp"
+
 #include <QMainWindow>
 #include <QTableWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QMap>
-#include "MonitorController.h"
-#include "ChartWindow.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT

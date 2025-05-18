@@ -1,4 +1,4 @@
-#include "Gui/MonitorController.h"
+#include "Gui/MonitorController.hpp"
 #include <QtConcurrent/QtConcurrent>
 
 MonitorController::MonitorController(QObject *parent) : QObject(parent) {
