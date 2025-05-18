@@ -17,9 +17,9 @@ public:
 
 private slots:
     void onAddHost();
-    void onRemoveSelectedHost();
-    void onPingSuccess(QString host, QString ip, double rtt);
-    void onPingFailure(QString host, QString error);
+    void onRemoveHost();
+    void updateResult(const QString &hostName, bool alive, int rtt);
+    void onTableCellClicked(int row, int column);
 
 private:
     HostListModel* hostModel;
