@@ -16,7 +16,7 @@ public:
     u_int32_t get_value() const {return intRepresentation_;}
 
     // Access to MAC_48 octens by the following scheme:
-    // 000:123:323:231:468:343
+    // 000:123:323:231:468:343 
     // [0].[1].[2].[3].[4].[5]
     u_int8_t operator[] (int num) const;
 
@@ -26,3 +26,4 @@ public:
 std::string to_string(const MAC_48 &MAC);
 
 } // namespace panic
+

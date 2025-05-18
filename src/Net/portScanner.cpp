@@ -21,14 +21,14 @@
 namespace panic {
 
 void PortScanner::scanPorts(Host& host, int startPort, int endPort) {
-    // host.set_status(ONLINE); TODO: set it yourself
+    host.set_status(ONLINE);
 
     std::vector<pthread_t> threads;
     std::mutex mutex;
 
     for (int port = startPort; port <= endPort; ++port) {
         auto* data = new ThreadData{port, &host, &mutex};
-
+        
         pthread_t thread;
         if (pthread_create(&thread, nullptr, checkPort, data) != 0) {
             delete data;
@@ -41,15 +41,6 @@ void PortScanner::scanPorts(Host& host, int startPort, int endPort) {
     for (auto& thread : threads) {
         pthread_join(thread, nullptr);
     }
-
-    std::cerr << "[PortScanner] Scan complete. Found ports:\n";
-
-    for (auto it = host.ports_begin(); it != host.ports_end(); ++it) {
-        long portNum = it->first;
-        std::cerr << portNum << "\n";
-    }
-
-    std::cerr << "[PortScanner] Output complete.\n";
 }
 
 void* PortScanner::checkPort(void* arg) {
@@ -85,7 +76,7 @@ bool PortScanner::isPortOpen(const IPv4& ip, int port) {
         close(sock);
         return false;
     }
-
+    
     // Настраиваем select для таймаута
     fd_set writefds;
     FD_ZERO(&writefds);
@@ -96,7 +87,7 @@ bool PortScanner::isPortOpen(const IPv4& ip, int port) {
     timeout.tv_usec = 0;
 
     result = select(sock + 1, nullptr, &writefds, nullptr, &timeout);
-
+    
     bool isOpen = false;
     if (result > 0) {
         // Проверяем, что соединение действительно установлено
