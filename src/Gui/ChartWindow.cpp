@@ -28,12 +28,23 @@ void ChartWindow::setupChart() {
     chart->createDefaultAxes();
     chart->setTitle("Ping RTT history: " + hostName);
 
+    auto *xAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
+    auto *yAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
+
+    if (xAxis) xAxis->setTitleText("Time (s)");
+    if (yAxis) yAxis->setTitleText("RTT (ms)");
+
     auto *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
+    clearButton = new QPushButton("Clear");
+
     auto *layout = new QVBoxLayout(this);
     layout->addWidget(chartView);
+    layout->addWidget(clearButton);
     setLayout(layout);
+
+    connect(clearButton, &QPushButton::clicked, this, &ChartWindow::clearGraph);
 }
 
 void ChartWindow::setHistory(const QList<int> &history) {
@@ -56,5 +67,20 @@ void ChartWindow::appendRtt(int rtt) {
 
     if (rtt > yAxis->max()) {
         yAxis->setMax(rtt);
+    }
+}
+
+void ChartWindow::clearGraph() {
+    series->clear();
+    xIndex = 0;
+
+    auto *xAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
+    auto *yAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
+
+    if (xAxis) {
+        xAxis->setRange(0, 10);
+    }
+    if (yAxis) {
+        yAxis->setRange(0, 100);
     }
 }
