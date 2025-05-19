@@ -49,8 +49,11 @@ MainWindow::~MainWindow() {
 void MainWindow::onAddHost() {
     bool ok;
     QString hostIP = QInputDialog::getText(this, "Add Host", "Host IP:", QLineEdit::Normal, "", &ok);
-    if (ok && !hostIP.isEmpty()) {
+    try {
         controller->addHost(hostIP);
+    } catch (const std::system_error &e) {
+        QMessageBox::critical(this, "Hostname Resolution Failed",
+            QString("Could not resolve hostname"));
     }
 }
 
