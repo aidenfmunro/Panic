@@ -14,7 +14,7 @@ qt_standard_project_setup()
 
 add_executable(${TARGET})
 
-# target_compile_options(${TARGET} PRIVATE -fsanitize=address -g)
+target_compile_options(${TARGET} PRIVATE -fsanitize=address )
 target_link_options(${TARGET} PRIVATE -lpthread)
 
 enable_testing()
