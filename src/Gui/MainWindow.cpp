@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QClipboard>
 #include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -33,6 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(removeHostButton, &QPushButton::clicked, this, &MainWindow::onRemoveHost);
     connect(controller, &MonitorController::hostChecked, this, &MainWindow::onHostChecked);
     connect(table, &QTableWidget::cellClicked, this, &MainWindow::onTableCellClicked);
+    connect(table->selectionModel(), &QItemSelectionModel::selectionChanged,
+        this, [this](const QItemSelection &, const QItemSelection &) {
+            table->clearSelection();
+        });
+
 }
 
 MainWindow::~MainWindow() {
@@ -94,7 +100,7 @@ void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
         int startPort = QInputDialog::getInt(this, "Start Port", "Enter start port:", 20, 1, 65535);
         int endPort = QInputDialog::getInt(this, "End Port", "Enter end port:", 100, startPort, 65535);
 
-        panic::Host* host = controller->getHost(hostIP);  // You might need to implement getHost()
+        panic::Host* host = controller->getHost(hostIP);
 
         panic::PortScanner::scanPorts(*host, startPort, endPort);
 
@@ -105,28 +111,50 @@ void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
     });
 }
 
-void MainWindow::onTableCellClicked(int row, int /*column*/) {
-    QString host = table->item(row, 1)->text();
-    const auto &history = controller->getRttHistory(host);
-    if (history.isEmpty()) {
-        return;
+void MainWindow::onTableCellClicked(int row, int column) {
+    switch (column) {
+        case 0:
+        {
+            QString hostname = table->item(row, column)->text();
+            QGuiApplication::clipboard()->setText(hostname);
+            QMessageBox::information(this, "Copied", "Hostname copied to clipboard!");
+
+            table->clearSelection();
+
+            return;
+        }
+        case 3:
+        {
+            QString host = table->item(row, 1)->text();
+            const auto &history = controller->getRttHistory(host);
+            if (history.isEmpty()) {
+                table->clearSelection();
+                return;
+            }
+
+            if (openCharts.contains(host)) {
+                openCharts[host]->show();
+                openCharts[host]->raise();
+                openCharts[host]->activateWindow();
+
+                table->clearSelection();  // <-- Add this line
+                return;
+            }
+
+            auto *chart = new ChartWindow(host, history);
+            openCharts.insert(host, chart);
+
+            connect(chart, &QWidget::destroyed, this, [this, host]() {
+                openCharts.remove(host);
+            });
+
+            chart->show();
+
+            table->clearSelection();
+
+            return;
+        }
     }
-
-    if (openCharts.contains(host)) {
-        openCharts[host]->show();
-        openCharts[host]->raise();
-        openCharts[host]->activateWindow();
-        return;
-    }
-
-    auto *chart = new ChartWindow(host, history);
-    openCharts.insert(host, chart);
-
-    connect(chart, &QWidget::destroyed, this, [this, host]() {
-        openCharts.remove(host);
-    });
-
-    chart->show();
 }
 
 void MainWindow::onHostChecked(const QString &host, bool alive, int rtt) {

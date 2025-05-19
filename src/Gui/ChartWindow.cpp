@@ -28,6 +28,12 @@ void ChartWindow::setupChart() {
     chart->createDefaultAxes();
     chart->setTitle("Ping RTT history: " + hostName);
 
+    auto *xAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first());
+    auto *yAxis = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).first());
+
+    if (xAxis) xAxis->setTitleText("Time (s)");
+    if (yAxis) yAxis->setTitleText("RTT (ms)");
+
     auto *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
