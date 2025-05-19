@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PANIC
+Comment=Real-time network monitor
+Exec=panic
+Icon=panic
+Terminal=false
+Categories=Network;Utility;
+StartupNotify=true

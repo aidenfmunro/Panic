@@ -14,7 +14,7 @@ qt_standard_project_setup()
 
 add_executable(${TARGET})
 
-target_compile_options(${TARGET} PRIVATE -fsanitize=address )
+# starget_compile_options(${TARGET} PRIVATE -fsanitize=address )
 target_link_options(${TARGET} PRIVATE -lpthread)
 
 enable_testing()
@@ -40,3 +40,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
 set_target_properties(${TARGET}
                       PROPERTIES
                       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+install(TARGETS ${TARGET}
+        RUNTIME DESTINATION bin)
+
