@@ -15,8 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
     auto *central = new QWidget;
     auto *layout = new QVBoxLayout(central);
 
-    table->setColumnCount(4);
-    table->setHorizontalHeaderLabels({"Host", "Status", "Port", "Actions"});
+    table->setColumnCount(6);
+    table->setHorizontalHeaderLabels({"Host", "IP", "Status", "RTT", "Port", "Actions"});
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -36,25 +36,16 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {
-    // Очистим все открытые окна графиков
     qDeleteAll(openCharts);
     openCharts.clear();
 }
 
 void MainWindow::onAddHost() {
     bool ok;
-    QString host = QInputDialog::getText(this, "Add Host", "Hostname:", QLineEdit::Normal, "", &ok);
-    if (ok && !host.isEmpty()) {
-        controller->addHost(host);
+    QString hostIP = QInputDialog::getText(this, "Add Host", "Host IP:", QLineEdit::Normal, "", &ok);
+    if (ok && !hostIP.isEmpty()) {
+        controller->addHost(hostIP);
     }
-
-//     int startPort = QInputDialog::getInt(this, "Port Range", "Start Port:", 20, 1, 65535, 1, &ok);
-//     if (!ok)
-//         return;
-//
-//     int endPort = QInputDialog::getInt(this, "Port Range", "End Port:", 100, startPort, 65535, 1, &ok);
-//     if (!ok)
-//         return;
 }
 
 void MainWindow::onRemoveHost() {
@@ -77,37 +68,33 @@ void MainWindow::onRemoveHost() {
 }
 
 
-void MainWindow::updateResult(const QString &hostName, bool alive, int rtt) {
-    // Поиск строки с хостом
+void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
     for (int i = 0; i < table->rowCount(); ++i) {
-        if (table->item(i, 0)->text() == hostName) {
-            table->item(i, 1)->setText(alive ? "🟢" : "🔴");
-            // table->item(i, 2)->setText(alive ? QString::number(rtt) : ""); TODO: ports
+        if (table->item(i, 1)->text() == hostIP) {
+            table->item(i, 2)->setText(alive ? "🟢" : "🔴");
+            table->item(i, 3)->setText(alive ? QString::number(rtt) : "");
             return;
         }
     }
-    // Если не найдено, добавить новую строку
+
     int row = table->rowCount();
     table->insertRow(row);
-    table->setItem(row, 0, new QTableWidgetItem(hostName));
-    table->setItem(row, 1, new QTableWidgetItem(alive ? "🟢" : "🔴"));
+    table->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(controller->getHost(hostIP)->get_name())));
+    table->setItem(row, 1, new QTableWidgetItem(hostIP));
+    table->setItem(row, 2, new QTableWidgetItem(alive ? "🟢" : "🔴"));
+    table->setItem(row, 3, new QTableWidgetItem(QString::number(rtt)));
 
     QComboBox *portCombo = new QComboBox();
-    portCombo->addItems({"22", "80", "443", "8080"});
-    portCombo->setCurrentText("80");
-    table->setCellWidget(row, 2, portCombo);
+    table->setCellWidget(row, 4, portCombo);
 
-    // Scan Ports button
     QPushButton *scanButton = new QPushButton("Scan Ports");
-    table->setCellWidget(row, 3, scanButton);
+    table->setCellWidget(row, 5, scanButton);
 
-    // Capture row and connect button to slot
-    connect(scanButton, &QPushButton::clicked, this, [this, hostName, portCombo]() {
+    connect(scanButton, &QPushButton::clicked, this, [this, hostIP, portCombo]() {
         int startPort = QInputDialog::getInt(this, "Start Port", "Enter start port:", 20, 1, 65535);
         int endPort = QInputDialog::getInt(this, "End Port", "Enter end port:", 100, startPort, 65535);
 
-        // Create a copy of the Host from controller
-        panic::Host* host = controller->getHost(hostName);  // You might need to implement getHost()
+        panic::Host* host = controller->getHost(hostIP);  // You might need to implement getHost()
 
         panic::PortScanner::scanPorts(*host, startPort, endPort);
 
@@ -119,13 +106,12 @@ void MainWindow::updateResult(const QString &hostName, bool alive, int rtt) {
 }
 
 void MainWindow::onTableCellClicked(int row, int /*column*/) {
-    QString host = table->item(row, 0)->text();
+    QString host = table->item(row, 1)->text();
     const auto &history = controller->getRttHistory(host);
     if (history.isEmpty()) {
-        return; // Нет данных - не показываем
+        return;
     }
 
-    // Если окно с графиком уже открыто, просто покажем его
     if (openCharts.contains(host)) {
         openCharts[host]->show();
         openCharts[host]->raise();
@@ -133,11 +119,9 @@ void MainWindow::onTableCellClicked(int row, int /*column*/) {
         return;
     }
 
-    // Создаем и показываем новое окно графика
     auto *chart = new ChartWindow(host, history);
     openCharts.insert(host, chart);
 
-    // Когда окно закроется, удаляем его из map
     connect(chart, &QWidget::destroyed, this, [this, host]() {
         openCharts.remove(host);
     });

@@ -1,5 +1,7 @@
 #include "Gui/MonitorController.hpp"
+
 #include <QtConcurrent/QtConcurrent>
+#include <iostream>
 
 MonitorController::MonitorController(QObject *parent) : QObject(parent) {
     connect(&timer, &QTimer::timeout, this, &MonitorController::checkHosts);
@@ -13,6 +15,9 @@ void MonitorController::addHost(const QString &hostName) {
         panic::IPv4 ip(hostName.toStdString());
         panic::Host host{};
         host.set_IPv4(ip);
+        host.set_name(getHostnameByIP(ip));
+
+        std::cerr << host.get_name() << "added!\n";
         hosts.insert(hostName, std::move(host));
     }
 }

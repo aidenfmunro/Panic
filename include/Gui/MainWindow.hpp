@@ -28,7 +28,7 @@ private:
 private slots:
     void onAddHost();
     void onRemoveHost();
-    void updateResult(const QString &hostName, bool alive, int rtt);
+    void updateResult(const QString &hostIP, bool alive, int rtt);
     void onTableCellClicked(int row, int column);
 
     void onHostChecked(const QString &host, bool alive, int rtt);
