@@ -62,7 +62,7 @@ void MainWindow::onRemoveHost() {
     if (row < 0)
         return;
 
-    QString host = table->item(row, 0)->text();
+    QString host = table->item(row, 1)->text();
 
     controller->removeHost(host);
 
@@ -79,25 +79,28 @@ void MainWindow::onRemoveHost() {
 
 void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
     for (int i = 0; i < table->rowCount(); ++i) {
-        if (table->item(i, 1)->text() == hostIP) {
-            table->item(i, 2)->setText(alive ? "🟢" : "🔴");
-            table->item(i, 3)->setText(alive ? QString::number(rtt) : "");
+        if (table->item(i, MainWindow::Position::IP)->text() == hostIP) {
+            table->item(i, MainWindow::Position::Status)->setText(
+                panic::toEmoji(alive ? panic::Status::Alive : panic::Status::Dead)
+            );
+            table->item(i, MainWindow::Position::RTT)->setText(alive ? QString::number(rtt) : "");
             return;
         }
     }
 
     int row = table->rowCount();
     table->insertRow(row);
-    table->setItem(row, 0, new QTableWidgetItem(QString::fromStdString(controller->getHost(hostIP)->get_name())));
-    table->setItem(row, 1, new QTableWidgetItem(hostIP));
-    table->setItem(row, 2, new QTableWidgetItem(alive ? "🟢" : "🔴"));
-    table->setItem(row, 3, new QTableWidgetItem(QString::number(rtt)));
+    table->setItem(row, MainWindow::Position::Host, new QTableWidgetItem(QString::fromStdString(controller->getHost(hostIP)->get_name())));
+    table->setItem(row, MainWindow::Position::IP, new QTableWidgetItem(hostIP));
+    table->setItem(row, MainWindow::Position::Status,
+        new QTableWidgetItem(panic::toEmoji(alive ? panic::Status::Alive : panic::Status::Dead)));
+    table->setItem(row, MainWindow::Position::RTT, new QTableWidgetItem(QString::number(rtt)));
 
     QComboBox *portCombo = new QComboBox();
-    table->setCellWidget(row, 4, portCombo);
+    table->setCellWidget(row, MainWindow::Position::Port, portCombo);
 
     QPushButton *scanButton = new QPushButton("Scan Ports");
-    table->setCellWidget(row, 5, scanButton);
+    table->setCellWidget(row, MainWindow::Position::Actions, scanButton);
 
     connect(scanButton, &QPushButton::clicked, this, [this, hostIP, portCombo]() {
         int startPort = QInputDialog::getInt(this, "Start Port", "Enter start port:", 20, 1, 65535);
@@ -116,7 +119,7 @@ void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
 
 void MainWindow::onTableCellClicked(int row, int column) {
     switch (column) {
-        case 0:
+        case MainWindow::Position::Host:
         {
             QString hostname = table->item(row, column)->text();
             QGuiApplication::clipboard()->setText(hostname);
@@ -126,7 +129,7 @@ void MainWindow::onTableCellClicked(int row, int column) {
 
             return;
         }
-        case 3:
+        case MainWindow::Position::RTT:
         {
             QString host = table->item(row, 1)->text();
             const auto &history = controller->getRttHistory(host);
@@ -140,7 +143,7 @@ void MainWindow::onTableCellClicked(int row, int column) {
                 openCharts[host]->raise();
                 openCharts[host]->activateWindow();
 
-                table->clearSelection();  // <-- Add this line
+                table->clearSelection();
                 return;
             }
 
