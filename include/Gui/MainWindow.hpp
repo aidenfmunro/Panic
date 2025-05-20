@@ -13,6 +13,16 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
+    enum Position {
+        Host,
+        IP,
+        Status,
+        RTT,
+        Port,
+        Actions,
+    };
+
+public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
