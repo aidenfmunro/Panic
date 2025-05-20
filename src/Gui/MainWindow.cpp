@@ -140,7 +140,7 @@ void MainWindow::onTableCellClicked(int row, int column) {
                 openCharts[host]->raise();
                 openCharts[host]->activateWindow();
 
-                table->clearSelection();  // <-- Add this line
+                table->clearSelection();  
                 return;
             }
 
