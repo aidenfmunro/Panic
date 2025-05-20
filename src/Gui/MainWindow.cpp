@@ -80,7 +80,9 @@ void MainWindow::onRemoveHost() {
 void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
     for (int i = 0; i < table->rowCount(); ++i) {
         if (table->item(i, MainWindow::Position::IP)->text() == hostIP) {
-            table->item(i, MainWindow::Position::Status)->setText(alive ? "🟢" : "🔴");
+            table->item(i, MainWindow::Position::Status)->setText(
+                panic::toEmoji(alive ? panic::Status::Alive : panic::Status::Dead)
+            );
             table->item(i, MainWindow::Position::RTT)->setText(alive ? QString::number(rtt) : "");
             return;
         }
@@ -90,7 +92,8 @@ void MainWindow::updateResult(const QString &hostIP, bool alive, int rtt) {
     table->insertRow(row);
     table->setItem(row, MainWindow::Position::Host, new QTableWidgetItem(QString::fromStdString(controller->getHost(hostIP)->get_name())));
     table->setItem(row, MainWindow::Position::IP, new QTableWidgetItem(hostIP));
-    table->setItem(row, MainWindow::Position::Status, new QTableWidgetItem(alive ? "🟢" : "🔴"));
+    table->setItem(row, MainWindow::Position::Status,
+        new QTableWidgetItem(panic::toEmoji(alive ? panic::Status::Alive : panic::Status::Dead)));
     table->setItem(row, MainWindow::Position::RTT, new QTableWidgetItem(QString::number(rtt)));
 
     QComboBox *portCombo = new QComboBox();
@@ -140,7 +143,7 @@ void MainWindow::onTableCellClicked(int row, int column) {
                 openCharts[host]->raise();
                 openCharts[host]->activateWindow();
 
-                table->clearSelection();  
+                table->clearSelection();
                 return;
             }
 

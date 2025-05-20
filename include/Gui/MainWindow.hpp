@@ -9,6 +9,22 @@
 #include <QVBoxLayout>
 #include <QMap>
 
+namespace panic {
+
+enum Status {
+    Alive,
+    Dead
+};
+
+inline QString toEmoji(oStatus status) {
+    switch (status) {
+        case Status::Alive: return "🟢";
+        case Status::Dead:  return "🔴";
+    }
+    return {};
+}
+}  // namespace panic
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
