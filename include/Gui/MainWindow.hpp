@@ -16,7 +16,7 @@ enum Status {
     Dead
 };
 
-inline QString toEmoji(oStatus status) {
+inline QString toEmoji(Status status) {
     switch (status) {
         case Status::Alive: return "🟢";
         case Status::Dead:  return "🔴";
