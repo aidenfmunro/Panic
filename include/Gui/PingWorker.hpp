@@ -1,8 +1,13 @@
 #pragma once
 
+#include <QProcess>
 #include <QString>
 
 class PingWorker {
 public:
-    static bool ping(const QString &host, int &rtt); // true if host responds, rtt in ms
+    bool ping(const QString &host, int &rtt); // true if host responds, rtt in ms
+    void stop();
+
+private:
+    QProcess pingProcess_;
 };

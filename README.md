@@ -26,8 +26,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/aidenfmunro/panic.git
-cd panic
+git clone https://github.com/aidenfmunro/Panic.git
+cd Panic
 
 # Создание директории для сборки
 mkdir build && cd build
@@ -44,8 +44,8 @@ make -j$(nproc)
 Если вы хотите установить Panic в систему с иконкой, desktop-файлом и бинарником в `/usr/local/bin`, используйте готовый скрипт:
 
 ```bash
-git clone https://github.com/aidenfmunro/panic.git
-cd panic
+git clone https://github.com/aidenfmunro/Panic.git
+cd Panic
 bash ./packaging/install.sh
 ```
 
@@ -63,7 +63,7 @@ bash ./packaging/install.sh
 Для удаления Panic из системы выполните:
 
 ```bash
-cd panic
+cd Panic
 ./packaging/uninstall.sh
 ```
 

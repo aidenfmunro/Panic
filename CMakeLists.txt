@@ -30,6 +30,14 @@ target_link_libraries(${TARGET} PRIVATE
     Qt6::Charts
 )
 
+target_link_libraries(${TEST_TARGET} PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Concurrent
+    Qt6::Charts
+)
+
 target_include_directories(${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${TEST_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
