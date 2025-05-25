@@ -39,7 +39,8 @@ void MonitorController::checkHosts() {
 
         QThreadPool::globalInstance()->start([this, host, hostName]() {
             int rtt;
-            bool ok = PingWorker::ping(hostName, rtt);
+            PingWorker worker{};
+            bool ok = worker.ping(hostName, rtt);
             QMetaObject::invokeMethod(this, [this, host, hostName, ok, rtt] {
                 auto it = hosts.find(hostName);
                 if (it != hosts.end()) {
